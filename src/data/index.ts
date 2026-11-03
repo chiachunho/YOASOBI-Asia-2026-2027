@@ -4,7 +4,7 @@ import type { Action, Song } from "./types";
 import type { Timings } from "../lib/timings";
 
 export { ORDER, BASE_SONGS } from "./songs";
-export { SETLIST, setlistOrder } from "./setlist";
+export { SETLIST, setlistLabel, setlistOrder } from "./setlist";
 export { VIDEOS, videoIdFor, defaultVersion } from "./videos";
 export { ACTIONS } from "./actions";
 export * from "./types";

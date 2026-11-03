@@ -141,7 +141,7 @@ export function Footer() {
         <a href="https://live-setlist.hatenablog.com/entry/yoasobi-osakadome-2026-10" target="_blank" rel="noopener">
           ライブ-セットリスト
         </a>
-        。歌詞翻譯的譯者標示在各歌曲頁。
+        。
       </p>
       <p>
         版面與播放器互動參考{" "}

@@ -7,6 +7,7 @@ import {
   VIDEOS,
   applyCueTimes,
   defaultVersion,
+  setlistLabel,
   setlistOrder,
   videoIdFor,
   type Action,
@@ -211,7 +212,7 @@ const CueRow = memo(function CueRow({
           ))}
           <span className="cue-text">{c.note}</span>
         </span>
-        <span className="tm num">{formatTime(s, markMode)}</span>
+        <span className="tm num">{timed || markMode ? formatTime(s, markMode) : ""}</span>
       </button>
     </li>
   );
@@ -354,6 +355,8 @@ export function SongPage({ id, version: vParam, from }: { id: string; version?: 
   }
 
   const list = from === "all" ? ORDER : setlistOrder();
+  // 編號跟列表頁一致：歌單用演出編號（16、＊、EN2），全部歌曲用排列序號
+  const labelOf = (sid: string) => (from === "all" ? String(ORDER.indexOf(sid) + 1) : (setlistLabel(sid) ?? ""));
   const pos = list.indexOf(id);
   const prevId = pos > 0 ? list[pos - 1] : undefined;
   const nextId = pos >= 0 && pos < list.length - 1 ? list[pos + 1] : undefined;
@@ -533,7 +536,7 @@ export function SongPage({ id, version: vParam, from }: { id: string; version?: 
             ))}
           </ol>
         )}
-        {!lines && videoId && !rawLyrics.error && <p className="src">這個版本還沒有歌詞檔。有時間點的段落可以點一下跳過去。</p>}
+        {markMode && !lines && videoId && !rawLyrics.error && <p className="src">這個版本還沒有歌詞檔（lyrics/{id}.{version}.srt）。</p>}
         {lines && song.translationCredit && <p className="src">歌詞翻譯：{song.translationCredit}</p>}
       </div>
 
@@ -547,7 +550,7 @@ export function SongPage({ id, version: vParam, from }: { id: string; version?: 
           </button>
           <button type="button" className="dock-title" onClick={() => setSheet("songs")}>
             <span className="num">
-              {pos + 1}/{list.length}
+              {labelOf(id)}
             </span>{" "}
             <span className="jp">{song.title}</span>
           </button>
@@ -590,7 +593,7 @@ export function SongPage({ id, version: vParam, from }: { id: string; version?: 
 
       <Sheet open={sheet === "songs"} title={from === "all" ? "全部歌曲" : "預測歌單"} onClose={() => setSheet(null)}>
         <ul className="pick-list">
-          {list.map((sid, i) => (
+          {list.map((sid) => (
             <li key={sid}>
               <button
                 type="button"
@@ -600,7 +603,7 @@ export function SongPage({ id, version: vParam, from }: { id: string; version?: 
                   openSong(sid, { from });
                 }}
               >
-                <span className="num">{i + 1}</span> <span className="jp">{BASE_SONGS[sid].title}</span>
+                <span className="num">{labelOf(sid)}</span> <span className="jp">{BASE_SONGS[sid].title}</span>
               </button>
             </li>
           ))}

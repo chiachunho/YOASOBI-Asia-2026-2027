@@ -30,6 +30,15 @@ export const SETLIST: SetlistRow[] = [
   { n: "EN4", id: "yoru" },
 ];
 
+/** 歌曲在歌單上的編號（與預測歌單頁顯示的一致）：1、7、＊、EN2…；日替的另一首用同一個編號 */
+export function setlistLabel(id: string): string | undefined {
+  for (const r of SETLIST) {
+    if ("head" in r) continue;
+    if (r.id === id || r.alt === id) return String(r.n);
+  }
+  return undefined;
+}
+
 /** 歌曲頁上一首／下一首用的演出順序（不重複；日替曲兩首都放） */
 export function setlistOrder(): string[] {
   const out: string[] = [];
