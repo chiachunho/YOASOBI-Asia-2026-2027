@@ -1,6 +1,4 @@
-node_modules/
-dist/
-.vite/
-
-# Spectra app data
-.spectra/
+node_modules
+dist
+.vercel
+*.local

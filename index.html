@@ -1,138 +1,26 @@
-<!DOCTYPE html>
-<html lang="zh-Hant-TW">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>VAUNDY ASIA ARENA TOUR 2026 "HORO" — TAIPEI 應援指南</title>
-<meta name="description" content="VAUNDY ASIA ARENA TOUR 2026 &quot;HORO&quot; 台北演出應援指南 — 各曲歌詞與大合唱、拍手、揮手重點">
-<link rel="canonical" href="https://vaundy.tiaui.co/">
-<meta name="theme-color" content="#2a0a06">
-<script>try{const t=localStorage.getItem("horo-theme");document.documentElement.dataset.theme=t==="dark"||t==="light"?t:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")}catch(e){}</script>
-<script>
-// Hide the homepage before parsing it when a hash route was requested.
-if (location.hash && location.hash !== "#" && location.hash !== "#/") {
-  document.documentElement.setAttribute("data-initial-route", "");
-}
-</script>
-<style>[data-initial-route] #app{display:none}</style>
-
-<!-- 홈 화면 설치(PWA) -->
-<link rel="apple-touch-icon" href="./apple-touch-icon.png">
-<link rel="icon" href="./icon-192.png" type="image/png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Vaundy 應援指南">
-
-<!-- 日文歌詞的 Noto Sans JP 會在使用者需要時，以字元子集延後載入 -->
-
-<!-- 링크 공유용 -->
-<meta property="og:type" content="website">
-<meta property="og:title" content="VAUNDY &quot;HORO&quot; TAIPEI 應援指南">
-<meta property="og:description" content="搭配影片確認各曲歌詞與大合唱、拍手、揮手重點">
-<meta property="og:image" content="./icon-512.png">
-<meta name="twitter:card" content="summary">
-<link rel="stylesheet" href="./src/app.css">
-
-<!-- ─────────────────────────────────────────────────────────────
-     짤방(동작 사진) 패널 — 가사 영역 위에 겹쳐서 떴다 사라집니다.
-     ───────────────────────────────────────────────────────────── -->
-<!-- YouTube IFrame Player API 스크립트 추가 -->
-
-</head>
-
-<body>
-<!-- 반복되는 아이콘은 여기 한 번만 정의하고 <use> 로 가져다 씁니다.
-     (가사 한 곡에 수백 개가 복제되던 것을 줄이기 위한 스프라이트) -->
-<svg class="icon-sprite" aria-hidden="true" focusable="false"><defs>
-  <symbol id="i-wave" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M8.5 12V7.2a1.5 1.5 0 0 1 3 0v4"/><path d="M11.5 11V5.5a1.5 1.5 0 0 1 3 0V11"/><path d="M14.5 11.2V7.6a1.5 1.5 0 0 1 3 0v6.2a6.6 6.6 0 0 1-6.6 6.6 5.9 5.9 0 0 1-4.2-1.7l-2.9-2.9a1.6 1.6 0 0 1 2.3-2.3l1.9 1.8"/><path d="M8.5 12V10a1.5 1.5 0 0 0-3 0v2.6"/><path d="M19.6 5.2a4 4 0 0 1 0 5.6"/><path d="M21.8 3.2a7 7 0 0 1 0 9.6"/>
-  </symbol>
-  <symbol id="i-hand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M8.5 12V7.2a1.5 1.5 0 0 1 3 0v4"/><path d="M11.5 11V5.5a1.5 1.5 0 0 1 3 0V11"/><path d="M14.5 11.2V7.6a1.5 1.5 0 0 1 3 0v6.2a6.6 6.6 0 0 1-6.6 6.6 5.9 5.9 0 0 1-4.2-1.7l-2.9-2.9a1.6 1.6 0 0 1 2.3-2.3l1.9 1.8"/><path d="M8.5 12V10a1.5 1.5 0 0 0-3 0v2.6"/>
-  </symbol>
-  <symbol id="i-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
-    <path d="M12 2.5v3.2"/><path d="M4.7 5.5l2.2 2.3"/><path d="M19.3 5.5l-2.2 2.3"/><path d="M2.6 13h3.1"/><path d="M21.4 13h-3.1"/>
-  </symbol>
-  <!-- 몸통(고정) : 머리 + 상체. 팔은 아래 i-cheer-arm 이 통째로 돌아간다 -->
-  <symbol id="i-cheer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="7.8" cy="6.4" r="2.7"/>
-    <path d="M3.2 21.8v-1.7a5.1 5.1 0 0 1 10.2 0v1.7"/>
-  </symbol>
-  <!-- 든 팔(회전) : 어깨(12.3,16)를 축으로, 팔 전체가 기울며 손이 작은 원을 그린다.
-       손끝에는 치켜세운 검지 -->
-  <symbol id="i-cheer-arm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M11.4 16.1 14.54 8.1"/>
-    <circle cx="14.85" cy="7.35" r=".85" stroke-width="1.9"/>
-    <path d="M15.05 6.79 16.26 3.72" stroke-width="1.7"/>
-  </symbol>
-  <symbol id="i-jump" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="12" cy="4" r="2.2"/><path d="M12 6.5v5.5"/><path d="M12 8 7.5 4.8"/><path d="M12 8 16.5 4.8"/><path d="M12 12 8 17.5"/><path d="M12 12 16 17.5"/>
-  </symbol>
-  <symbol id="i-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>
-  </symbol>
-</defs></svg>
-
-<main id="app"></main>
-<!-- 곡 화면 — 유튜브 iframe 을 다시 만들지 않으려고 화면 밖에 계속 살려 둔다 -->
-<main id="song-view" class="song-view offstage" inert></main>
-
-<!-- 새 버전 안내 / 오프라인 안내 / 홈 화면 추가 안내가 여기에 뜹니다 -->
-<!-- 공지 이미지 크게 보기 -->
-<div class="notice-view" id="notice-view" role="dialog" aria-modal="true" aria-label="放大檢視公告圖片" aria-hidden="true" inert>
-  <div class="nv-head">
-    <span class="nv-title" id="nv-title"></span>
-    <span class="nv-count" id="nv-count"></span>
-    <button class="nv-btn close" id="nv-close" aria-label="關閉">✕</button>
-  </div>
-  <div class="nv-scroll" id="nv-scroll">
-    <img id="nv-img" width="640" height="480" alt="" decoding="async">
-  </div>
-  <div class="nv-nav">
-    <button class="nv-btn" id="nv-prev">‹ 上一張</button>
-    <button class="nv-btn" id="nv-zoom">放大</button>
-    <button class="nv-btn" id="nv-next">下一張 ›</button>
-  </div>
-</div>
-
-<!-- 更新日誌 Modal；內容由 Vite 直接讀取 CHANGELOG.md -->
-<div class="notice-view changelog-view" id="changelog-view" role="dialog" aria-modal="true" aria-labelledby="changelog-title" aria-hidden="true" inert>
-  <div class="changelog-panel">
-    <div class="nv-head">
-      <h2 class="nv-title" id="changelog-title">更新日誌</h2>
-      <button class="nv-btn close" id="changelog-close" type="button" aria-label="關閉更新日誌">✕</button>
-    </div>
-    <div class="nv-scroll changelog-scroll" id="changelog-scroll">
-      <article class="changelog-content" id="changelog-content"></article>
-    </div>
-  </div>
-</div>
-
-<!-- 首次造訪公告；內容在 src/data.js 的 ANNOUNCEMENT，關閉後記在 localStorage 不再彈出 -->
-<div class="notice-view changelog-view announcement-view" id="announcement-view" role="dialog" aria-modal="true" aria-labelledby="announcement-title" aria-describedby="announcement-body" aria-hidden="true" inert>
-  <div class="changelog-panel announcement-panel">
-    <img class="announcement-hero" id="announcement-image" alt="" hidden decoding="async">
-    <div class="nv-head">
-      <h2 class="nv-title" id="announcement-title">公告</h2>
-      <button class="nv-btn close" id="announcement-close" type="button" aria-label="關閉公告">✕</button>
-    </div>
-    <div class="nv-scroll announcement-scroll">
-      <div class="announcement-body" id="announcement-body"></div>
-    </div>
-    <div class="announcement-actions">
-      <a class="announcement-primary" id="announcement-action" href="#" target="_blank" rel="noopener" hidden></a>
-      <button class="nv-btn announcement-dismiss" id="announcement-dismiss" type="button">知道了</button>
-    </div>
-  </div>
-</div>
-
-<div class="app-banner" id="app-banner" role="status">
-  <span class="msg" id="app-banner-msg"></span>
-  <button type="button" id="app-banner-action" hidden></button>
-  <button type="button" class="close" id="app-banner-close" aria-label="關閉">✕</button>
-</div>
-
-<script type="module" src="./src/main.js"></script>
-</body>
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b0d24" />
+    <meta name="description" content="YOASOBI「超惑星」札幌場（2026/11/14–15）非官方粉絲應援指南：預測歌單、逐行歌詞、應援動作與交通資訊。" />
+    <title>YOASOBI 超惑星 札幌場應援指南</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
+    <script>
+      // 在 React 載入前套用主題，避免閃一下淺色
+      try {
+        var t = localStorage.getItem("yoa-theme");
+        if (!t) t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        document.documentElement.dataset.theme = t;
+      } catch (e) { document.documentElement.dataset.theme = "dark"; }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./src/main.tsx"></script>
+  </body>
 </html>
