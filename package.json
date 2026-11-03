@@ -1,23 +1,29 @@
 {
-  "name": "vaundy-taipei-2026-guide",
-  "private": true,
-  "version": "1.23.7",
-  "type": "module",
+  "name": "yoasobi-sapporo-guide",
+  "version": "0.1.0",
   "scripts": {
     "dev": "vite",
-    "test": "vitest run",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "build": "vite build",
-    "preview": "vite preview"
-  },
-  "devDependencies": {
-    "@types/node": "^22.20.5",
-    "jsdom": "^30.1.3",
-    "typescript": "^7.0.2",
-    "vite": "^7.1.7",
-    "vitest": "^5.0.5"
+    "test": "vitest run",
+    "verify:videos": "tsx scripts/verify-videos.ts"
   },
   "dependencies": {
-    "@waline/client": "^3.16.1"
-  }
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.2.1",
+    "jsdom": "^30.1.3",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5",
+    "vitest": "^5.1.0"
+  },
+  "private": true,
+  "type": "module"
 }

@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://vaundy.tiaui.co/sitemap.xml
