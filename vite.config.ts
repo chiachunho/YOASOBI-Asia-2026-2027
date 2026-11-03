@@ -26,6 +26,8 @@ function serviceWorker(): Plugin {
 }
 
 export default defineConfig({
+  // 相對路徑：GitHub Pages 的子路徑（/YOASOBI-Asia-2026-2027/）、自訂網域、Vercel 都能用
+  base: "./",
   plugins: [react(), serviceWorker()],
   test: {
     environment: "node",

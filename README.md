@@ -49,26 +49,32 @@ npm run verify:videos  # 用 YouTube oEmbed 檢查影片 ID（需要能連到 yo
 
 標記先存在這台裝置的 localStorage，清掉瀏覽器資料就會不見，記得定期複製出來。
 
-## 部署到 Vercel
+## 部署到 GitHub Pages
 
-1. 把這個 repo 推到 GitHub。
-2. 在 Vercel 按 **Add New → Project**，匯入這個 repo。Framework 會自動偵測為 Vite，其他設定不用改（`vercel.json` 已指定 build 指令與輸出資料夾）。
-3. 部署完成後會拿到 `*.vercel.app` 網址。
+1. repo 的 **Settings → Pages → Build and deployment → Source** 選 **GitHub Actions**。
+2. 合併或推送到 `main` 後，`.github/workflows/pages.yml` 會執行 `npm ci`、`npm test`、`npm run build`，再發布 `dist/`。
+3. 完成後網址是 `https://chiachunho.github.io/YOASOBI-Asia-2026-2027/`。
+
+網站全部用相對路徑（`vite.config.ts` 的 `base: "./"`），放在子路徑或自訂網域都能用。開 PR 時 `.github/workflows/ci.yml` 只跑測試與建置，不部署。
 
 ### 綁定 `yoasobi.jefferyho.cc`（選用）
 
-1. Vercel 專案 → **Settings → Domains** → 輸入 `yoasobi.jefferyho.cc` → **Add**。
-2. Vercel 會顯示要設定的 DNS 紀錄。子網域通常是：
+1. 到 `jefferyho.cc` 的 DNS 管理介面（網域商或 Cloudflare）新增一筆：
 
    | 類型 | 名稱 | 值 |
    |---|---|---|
-   | CNAME | `yoasobi` | Vercel 顯示的值（通常是 `cname.vercel-dns.com`，新專案可能是一串專屬的 `*.vercel-dns-xxx.com`） |
+   | CNAME | `yoasobi` | `chiachunho.github.io` |
 
-   以 Vercel 畫面上顯示的值為準。
-3. 到 `jefferyho.cc` 的 DNS 管理介面（網域商或 Cloudflare）新增上面那筆 CNAME。
-   - 用 Cloudflare 的話，Proxy 狀態設成 **DNS only（灰色雲）**，讓 Vercel 簽發 HTTPS 憑證。
-   - 如果 `jefferyho.cc` 有 CAA 紀錄，要允許 `letsencrypt.org`。
-4. 回 Vercel 等狀態變成 **Valid Configuration**，HTTPS 憑證會自動簽發，通常幾分鐘內完成。
+   用 Cloudflare 的話，先設成 **DNS only（灰色雲）**，等 GitHub 簽好 HTTPS 憑證再決定要不要開 Proxy。
+2. repo 的 **Settings → Pages → Custom domain** 填 `yoasobi.jefferyho.cc` → **Save**，等 DNS 檢查通過。
+3. 勾選 **Enforce HTTPS**（憑證簽發可能要幾分鐘到一小時）。
+4. 建議到 GitHub 帳號的 **Settings → Pages** 驗證 `jefferyho.cc` 網域，避免別人的 repo 搶用這個子網域。
+
+用 GitHub Actions 部署時不需要在 repo 放 `CNAME` 檔，網域設定存在 repo 的 Pages 設定裡。
+
+### 改用 Vercel（選用）
+
+`vercel.json` 已經準備好。在 Vercel 匯入這個 repo 即可，Framework 會自動偵測為 Vite；自訂網域在 Vercel 專案的 **Settings → Domains** 新增，DNS 改成 Vercel 顯示的 CNAME 值。
 
 ## 來源與聲明
 

@@ -12,7 +12,8 @@ export function registerServiceWorker() {
   if (!import.meta.env.PROD || !("serviceWorker" in navigator)) return;
   window.addEventListener("load", () => {
     navigator.serviceWorker
-      .register("/sw.js")
+      // 相對於目前頁面，部署在子路徑時也找得到
+      .register(new URL("sw.js", document.baseURI).href, { scope: "./" })
       .then((reg) => {
         const track = (w: ServiceWorker | null) => {
           if (!w) return;
