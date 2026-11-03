@@ -78,4 +78,4 @@ npm run verify:videos  # 用 YouTube oEmbed 檢查影片 ID（需要能連到 yo
 
 ## 來源與聲明
 
-非官方粉絲製作，與 YOASOBI、Sony Music 及主辦單位無關。影片為 YOASOBI 官方 YouTube 頻道嵌入。動作整理參考：未来を拾いに、kokemomo55、note；歌單參考：ライブ-セットリスト。版面與播放器互動參考 [Vaundy HORO 台北場應援指南](https://github.com/watain666/Vaundy-Taiwan-2026)。
+非官方粉絲製作，與 YOASOBI、Sony Music 及主辦單位無關。影片為 YOASOBI 官方 YouTube 頻道嵌入。動作整理參考：[未来を拾いに〈YOASOBIライブの定番振り付け＆特殊振り付けについて〉](https://onioni2004.hatenablog.com/entry/2025/12/14/231422)、[kokemomo55〈YOASOBIライブのコールや合いの手は？〉](https://kokemomo55.com/yoasobi-live-enjoy/)；歌單參考：ライブ-セットリスト。版面與播放器互動參考 [Vaundy HORO 台北場應援指南](https://github.com/watain666/Vaundy-Taiwan-2026)。
