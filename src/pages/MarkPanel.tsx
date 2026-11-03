@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { LyricLine, Song, VideoVersion } from "../data";
 import { marks } from "../lib/store";
 import { formatTime } from "../lib/timeline";
+import { round10 } from "../lib/timings";
 
 interface Props {
   song: Song;
@@ -39,7 +40,7 @@ export function MarkPanel(p: Props) {
 
   const mark = () => {
     if (p.time === null) return;
-    const v = Math.round(p.time * 10) / 10;
+    const v = round10(p.time);
     if (isLine) {
       marks.setLine(song.id, version, p.selLine, v);
       setLast({ kind: "line", index: p.selLine, value: v });
@@ -53,7 +54,7 @@ export function MarkPanel(p: Props) {
 
   const nudge = (d: number) => {
     if (!last) return;
-    const value = Math.max(0, Math.round((last.value + d) * 10) / 10);
+    const value = Math.max(0, round10(last.value + d));
     if (last.kind === "line") marks.setLine(song.id, version, last.index, value);
     else marks.setCue(song.id, version, last.index, song.cues.length, value);
     setLast({ ...last, value });
@@ -104,7 +105,15 @@ export function MarkPanel(p: Props) {
         <button type="button" className="pri" onClick={copy}>
           {copied === "ok" ? "已複製 ✓" : "複製 JSON"}
         </button>
-        <button type="button" onClick={() => marks.undo()}>
+        <button
+          type="button"
+          disabled={!marks.canUndo(song.id, version)}
+          onClick={() => {
+            marks.undo(song.id, version);
+            // 復原後「剛剛標的」已不存在，微調按鈕不能再把它寫回去
+            setLast(null);
+          }}
+        >
           ↶ 復原
         </button>
         <button type="button" onClick={() => nudge(-0.2)} disabled={!last} aria-label="上一個標記提早 0.2 秒">

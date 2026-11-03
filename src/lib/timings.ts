@@ -16,7 +16,9 @@ export interface Timings {
 
 export const emptyTimings = (): Timings => ({ cues: {}, lyrics: {} });
 
-const round = (n: number) => Math.round(n * 10) / 10;
+/** 時間點統一取到 0.1 秒 */
+export const round10 = (n: number) => Math.round(n * 10) / 10;
+const round = round10;
 
 /** 把本機標記疊到資料檔上。本機有值的格子優先。 */
 export function mergeTimings(base: Timings, local: Timings): Timings {

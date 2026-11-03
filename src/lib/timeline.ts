@@ -14,10 +14,10 @@ export function activeIndex(starts: readonly (number | null | undefined)[], t: n
 
 export function formatTime(sec: number | null | undefined, withTenths = false): string {
   if (sec === null || sec === undefined || !Number.isFinite(sec)) return "--:--";
-  const s = Math.max(0, sec);
-  const m = Math.floor(s / 60);
-  const r = s - m * 60;
-  const whole = Math.floor(r);
-  const base = `${m}:${String(whole).padStart(2, "0")}`;
-  return withTenths ? `${base}.${Math.floor((r - whole) * 10)}` : base;
+  // 先換成整數的 0.1 秒再拆，避免 65.3 這類浮點數被算成 65.29999…
+  const tenths = Math.floor(Math.max(0, sec) * 10 + 1e-6);
+  const m = Math.floor(tenths / 600);
+  const s = Math.floor(tenths / 10) % 60;
+  const base = `${m}:${String(s).padStart(2, "0")}`;
+  return withTenths ? `${base}.${tenths % 10}` : base;
 }

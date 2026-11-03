@@ -79,6 +79,17 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<number | null>(null);
 
   const hostRef = useCallback((el: HTMLDivElement | null) => setHost(el), []);
+  // 只讀 ref，身分固定，usePlayhead 的計時器不會因為播放狀態改變而重建
+  const getTime = useCallback((): number | null => {
+    const pl = readyRef.current ? playerRef.current : null;
+    if (!pl) return null;
+    try {
+      const t = pl.getCurrentTime();
+      return Number.isFinite(t) ? t : null;
+    } catch {
+      return null;
+    }
+  }, []);
 
   // 建立唯一的播放器
   useEffect(() => {
@@ -200,16 +211,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
         if (st === 1 || st === 3) pl.pauseVideo();
         else pl.playVideo();
       },
-      getTime() {
-        const pl = p();
-        if (!pl) return null;
-        try {
-          const t = pl.getCurrentTime();
-          return Number.isFinite(t) ? t : null;
-        } catch {
-          return null;
-        }
-      },
+      getTime,
       setRate(rate) {
         rateRef.current = rate;
         try {
@@ -227,7 +229,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
         }
       },
     };
-  }, [ready, status, videoId, error, hostRef]);
+  }, [ready, status, videoId, error, hostRef, getTime]);
 
   return <Ctx.Provider value={api}>{children}</Ctx.Provider>;
 }

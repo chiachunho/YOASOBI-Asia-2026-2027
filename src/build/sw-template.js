@@ -47,7 +47,7 @@ async function cacheFirst(request) {
   const hit = await cache.match(request.url, MATCH);
   if (hit) return hit;
   const res = await fetch(request);
-  if (res.ok) cache.put(request, res.clone());
+  if (res.ok) cache.put(request.url, res.clone());
   return res;
 }
 

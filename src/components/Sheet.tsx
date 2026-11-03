@@ -4,17 +4,20 @@ import { useEffect, useRef, type ReactNode } from "react";
 export function Sheet({ open, title, onClose, children }: { open: boolean; title: string; onClose: () => void; children: ReactNode }) {
   const panel = useRef<HTMLDivElement>(null);
   const returnTo = useRef<Element | null>(null);
+  // onClose 通常是每次 render 都新建的箭頭函式；放進 ref，effect 才不會每次 render 重跑而搶走焦點
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
   useEffect(() => {
     if (!open) return;
     returnTo.current = document.activeElement;
     panel.current?.focus();
-    const key = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    const key = (e: KeyboardEvent) => e.key === "Escape" && closeRef.current();
     document.addEventListener("keydown", key);
     return () => {
       document.removeEventListener("keydown", key);
       (returnTo.current as HTMLElement | null)?.focus?.();
     };
-  }, [open, onClose]);
+  }, [open]);
   if (!open) return null;
   return (
     <div className="sheet-wrap">

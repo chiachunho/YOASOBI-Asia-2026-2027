@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   ACTIONS,
@@ -9,6 +9,8 @@ import {
   defaultVersion,
   setlistOrder,
   videoIdFor,
+  type Action,
+  type Cue,
   type LyricLine,
   type Song,
   type VideoVersion,
@@ -101,6 +103,120 @@ function useWakeLock(active: boolean) {
   }, [active]);
 }
 
+/* 每 250ms 會讀一次播放秒數；清單的每一行用 memo，只有「目前行／選取行」改變的那幾行會重繪 */
+const LyricRow = memo(function LyricRow({
+  line: l,
+  index: i,
+  cue: c,
+  showCue,
+  prevActions,
+  isNow,
+  isSel,
+  markMode,
+  showJp,
+  showZh,
+  onSelect,
+}: {
+  line: LyricLine;
+  index: number;
+  cue: Cue | null;
+  showCue: boolean;
+  prevActions: string;
+  isNow: boolean;
+  isSel: boolean;
+  markMode: boolean;
+  showJp: boolean;
+  showZh: boolean;
+  onSelect: (i: number) => void;
+}) {
+  // 行內標記優先；沒有就沿用所在段落的動作
+  const acts: Action[] = l.actions.length ? l.actions : (c?.actions ?? []);
+  const showLineChips = l.actions.length > 0 && l.actions.join() !== prevActions;
+  const cls = ["line", l.backing ? "backing" : "", isNow ? "now" : "", isSel ? "sel" : ""].filter(Boolean).join(" ");
+  return (
+    <li data-idx={i}>
+      {showCue && c && (
+        <div className="line-cue">
+          <span>{c.section}</span>
+          {c.actions.map((a) => (
+            <Chip key={a} action={a} />
+          ))}
+          <span className="line-cue-note">{c.note}</span>
+        </div>
+      )}
+      <button type="button" className={cls} onClick={() => onSelect(i)}>
+        {acts.length > 0 && (
+          <span className="line-bar" aria-hidden="true">
+            {acts.map((a) => (
+              <i key={a} style={{ background: ACTIONS[a].color }} />
+            ))}
+          </span>
+        )}
+        <span className="line-text">
+          {showLineChips && (
+            <span className="line-chips">
+              {l.actions.map((a) => (
+                <Chip key={a} action={a} />
+              ))}
+            </span>
+          )}
+          {showJp && (
+            <span className="jp line-jp">
+              {l.parts.map((p, k) =>
+                p.chant ? (
+                  <mark key={k} className="chant">
+                    <Ruby text={p.text} />
+                  </mark>
+                ) : (
+                  <Ruby key={k} text={p.text} />
+                ),
+              )}
+            </span>
+          )}
+          {showZh && l.zh && <span className="line-zh">{l.zh}</span>}
+          {!showJp && !l.zh && <span className="line-zh">{l.jp}</span>}
+        </span>
+        {markMode && <span className="tm num">{formatTime(l.start, true)}</span>}
+      </button>
+    </li>
+  );
+});
+
+const CueRow = memo(function CueRow({
+  cue: c,
+  index: i,
+  start: s,
+  isNow,
+  isSel,
+  markMode,
+  onSelect,
+}: {
+  cue: Cue;
+  index: number;
+  start: number | undefined;
+  isNow: boolean;
+  isSel: boolean;
+  markMode: boolean;
+  onSelect: (i: number) => void;
+}) {
+  const timed = typeof s === "number";
+  const cls = ["cue", isNow ? "now" : "", isSel ? "sel" : "", timed ? "" : "untimed"].filter(Boolean).join(" ");
+  return (
+    <li data-idx={i}>
+      <button type="button" className={cls} onClick={() => onSelect(i)} aria-disabled={!timed && !markMode}>
+        <span className="cue-sec">{c.section}</span>
+        <span className="cue-act">
+          {c.actions.map((a) => (
+            <Chip key={a} action={a} />
+          ))}
+          <span className="cue-text">{c.note}</span>
+        </span>
+        <span className="tm num">{formatTime(s, markMode)}</span>
+      </button>
+    </li>
+  );
+});
+
 export function SongPage({ id, version: vParam, from }: { id: string; version?: VideoVersion; from: "setlist" | "all" }) {
   const song = useSong(id);
   const player = usePlayer();
@@ -118,7 +234,13 @@ export function SongPage({ id, version: vParam, from }: { id: string; version?: 
   const [markTarget, setMarkTarget] = useState<"cue" | "line">("cue");
   const listRef = useRef<HTMLDivElement>(null);
   const userScrollAt = useRef(0);
-  const lastSeek = useRef(0);
+  /** 只練應援跳過去的目標段落開始秒數；還沒播到之前不再重跳 */
+  const practiceTarget = useRef<number | null>(null);
+  // 點擊處理函式每次 render 都會變；用 ref 轉一手，傳給 memo 的行元件時身分固定
+  const lineClick = useRef<(i: number) => void>(() => {});
+  const cueClick = useRef<(i: number) => void>(() => {});
+  const onLineSelect = useCallback((i: number) => lineClick.current(i), []);
+  const onCueSelect = useCallback((i: number) => cueClick.current(i), []);
 
   // 直接開連結進來（不是點擊）時只 cue，不自動播放
   useEffect(() => {
@@ -164,16 +286,23 @@ export function SongPage({ id, version: vParam, from }: { id: string; version?: 
   // 只練應援：跳過「靜靜聽」與沒有動作的空檔
   useEffect(() => {
     if (!practice || !song || now === null || player.status !== "playing") return;
-    if (Date.now() - lastSeek.current < 1200) return;
     const isAction = (i: number) => song.cues[i].actions.some((a) => a !== "listen");
-    if (activeCue >= 0 && isAction(activeCue)) return;
+    if (activeCue >= 0 && isAction(activeCue)) {
+      practiceTarget.current = null;
+      return;
+    }
+    // 剛跳到目標前 1 秒，正在播往目標（含緩衝後恢復），不要再跳
+    const target = practiceTarget.current;
+    if (target !== null && now < target && now >= target - 3) return;
     const next = cueStarts
       .map((s, i) => ({ s, i }))
       .filter((x): x is { s: number; i: number } => typeof x.s === "number" && x.s > now && isAction(x.i))
       .sort((a, b) => a.s - b.s)[0];
-    lastSeek.current = Date.now();
-    if (next) player.seek(Math.max(0, next.s - 1));
-    else {
+    if (next) {
+      practiceTarget.current = next.s;
+      player.seek(Math.max(0, next.s - 1));
+    } else {
+      practiceTarget.current = null;
       player.pause();
       setPractice(false);
     }
@@ -257,6 +386,9 @@ export function SongPage({ id, version: vParam, from }: { id: string; version?: 
     }
     if (typeof s === "number") player.seek(s);
   };
+
+  lineClick.current = onLineClick;
+  cueClick.current = onCueClick;
 
   const cueOfLine = (l: LyricLine) => activeIndex(cueStarts, l.start + 0.05);
 
@@ -367,87 +499,38 @@ export function SongPage({ id, version: vParam, from }: { id: string; version?: 
           <ol className="lyrics" aria-label="歌詞">
             {lines.map((l, i) => {
               const ci = cueOfLine(l);
-              const showCue = ci >= 0 && (i === 0 || cueOfLine(lines[i - 1]) !== ci);
-              const c = ci >= 0 ? song.cues[ci] : null;
-              // 行內標記優先；沒有就沿用所在段落的動作
-              const acts = l.actions.length ? l.actions : (c?.actions ?? []);
-              const prevActs = i > 0 ? lines[i - 1].actions.join() : "";
-              const showLineChips = l.actions.length > 0 && l.actions.join() !== prevActs;
-              const cls = ["line", l.backing ? "backing" : "", i === activeLine ? "now" : "", markMode && markTarget === "line" && i === selLine ? "sel" : ""]
-                .filter(Boolean)
-                .join(" ");
               return (
-                <li key={i} data-idx={i}>
-                  {showCue && c && (
-                    <div className="line-cue">
-                      <span>{c.section}</span>
-                      {c.actions.map((a) => (
-                        <Chip key={a} action={a} />
-                      ))}
-                      <span className="line-cue-note">{c.note}</span>
-                    </div>
-                  )}
-                  <button type="button" className={cls} onClick={() => onLineClick(i)}>
-                    {acts.length > 0 && (
-                      <span className="line-bar" aria-hidden="true">
-                        {acts.map((a) => (
-                          <i key={a} style={{ background: ACTIONS[a].color }} />
-                        ))}
-                      </span>
-                    )}
-                    <span className="line-text">
-                      {showLineChips && (
-                        <span className="line-chips">
-                          {l.actions.map((a) => (
-                            <Chip key={a} action={a} />
-                          ))}
-                        </span>
-                      )}
-                      {prefs.showJp && (
-                        <span className="jp line-jp">
-                          {l.parts.map((p, k) =>
-                            p.chant ? (
-                              <mark key={k} className="chant">
-                                <Ruby text={p.text} />
-                              </mark>
-                            ) : (
-                              <Ruby key={k} text={p.text} />
-                            ),
-                          )}
-                        </span>
-                      )}
-                      {prefs.showZh && l.zh && <span className="line-zh">{l.zh}</span>}
-                      {!prefs.showJp && !l.zh && <span className="line-zh">{l.jp}</span>}
-                    </span>
-                    {markMode && <span className="tm num">{formatTime(l.start, true)}</span>}
-                  </button>
-                </li>
+                <LyricRow
+                  key={i}
+                  line={l}
+                  index={i}
+                  cue={ci >= 0 ? song.cues[ci] : null}
+                  showCue={ci >= 0 && (i === 0 || cueOfLine(lines[i - 1]) !== ci)}
+                  prevActions={i > 0 ? lines[i - 1].actions.join() : ""}
+                  isNow={i === activeLine}
+                  isSel={markMode && markTarget === "line" && i === selLine}
+                  markMode={markMode}
+                  showJp={prefs.showJp}
+                  showZh={prefs.showZh}
+                  onSelect={onLineSelect}
+                />
               );
             })}
           </ol>
         ) : (
           <ol className="cues" aria-label="應援段落">
-            {song.cues.map((c, i) => {
-              const s = cueStarts[i];
-              const timed = typeof s === "number";
-              const cls = ["cue", i === activeCue ? "now" : "", markMode && markTarget === "cue" && i === selCue ? "sel" : "", timed ? "" : "untimed"]
-                .filter(Boolean)
-                .join(" ");
-              return (
-                <li key={i} data-idx={i}>
-                  <button type="button" className={cls} onClick={() => onCueClick(i)} aria-disabled={!timed && !markMode}>
-                    <span className="cue-sec">{c.section}</span>
-                    <span className="cue-act">
-                      {c.actions.map((a) => (
-                        <Chip key={a} action={a} />
-                      ))}
-                      <span className="cue-text">{c.note}</span>
-                    </span>
-                    <span className="tm num">{formatTime(s, markMode)}</span>
-                  </button>
-                </li>
-              );
-            })}
+            {song.cues.map((c, i) => (
+              <CueRow
+                key={i}
+                cue={c}
+                index={i}
+                start={cueStarts[i]}
+                isNow={i === activeCue}
+                isSel={markMode && markTarget === "cue" && i === selCue}
+                markMode={markMode}
+                onSelect={onCueSelect}
+              />
+            ))}
           </ol>
         )}
         {!lines && videoId && !rawLyrics.error && <p className="src">這個版本還沒有歌詞檔。有時間點的段落可以點一下跳過去。</p>}
