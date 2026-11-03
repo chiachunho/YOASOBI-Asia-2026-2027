@@ -64,6 +64,8 @@ button:disabled { cursor: default; opacity: 0.45; }
 .hero { background: var(--space-deep); color: var(--star); position: relative; overflow: hidden; min-height: 100svh; }
 .hero svg.stars { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.55; pointer-events: none; }
 .hero-inner { position: relative; max-width: 520px; margin: 0 auto; padding: calc(44px + env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) 32px max(20px, env(safe-area-inset-left)); text-align: center; }
+.wip-notice { margin: 0 0 22px; padding: 10px 14px; border: 1px solid rgba(255, 200, 90, 0.55); border-radius: var(--radius); background: rgba(255, 200, 90, 0.12); color: #ffe2a6; font-size: 13px; line-height: 1.55; text-align: left; }
+.wip-notice strong { display: block; font-size: 14px; color: #ffd47a; margin-bottom: 2px; }
 .eyebrow { font-size: 12px; letter-spacing: 0.16em; opacity: 0.75; margin: 0 0 10px; }
 .tour-title { font-size: 44px; font-weight: 700; line-height: 1.05; margin: 0; letter-spacing: -0.02em; }
 .tour-title small { display: block; font-size: 13px; font-weight: 500; letter-spacing: 0.2em; margin-top: 8px; color: var(--accent); font-family: var(--font); }

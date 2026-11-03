@@ -55,6 +55,10 @@ export function Home() {
     <section className="hero">
       <Stars />
       <div className="hero-inner">
+        <p className="wip-notice" role="note">
+          <strong>🚧 內容還在修改中</strong>
+          應援動作、歌單與部分資訊還沒核對完，可能有錯，請以現場與官方公告為準。
+        </p>
         <p className="eyebrow">YOASOBI ASIA 10-CITY DOME &amp; STADIUM TOUR 2026-2027</p>
         <h1 className="tour-title jp">
           超惑星<small>SUPER PLANET</small>
